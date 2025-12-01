@@ -48,19 +48,26 @@ Before gaming
 
 Detects the game the user intends to launch
 
-Runs a “pre-game optimization checklist”
+Asks user to select their performance persona:
+  - "Max FPS" (competitive gaming priority)
+  - "Balanced" (optimized mix of quality and performance)
+  - "Quiet/Cool" (thermal and noise priority)
+  - "Visual Quality" (maximum graphics fidelity)
 
-Adjusts power modes
+Runs a "pre-game optimization checklist"
 
-Kills unnecessary background processes
+PC-level optimizations:
+  - Adjusts Windows power modes
+  - Kills unnecessary background processes
+  - Cleans temp memory
+  - Tunes display/refresh rate
+  - Applies GPU performance profile
 
-Cleans temp memory
-
-Tunes display/refresh rate
-
-Applies GPU profile
-
-Suggests optimal in-game settings (via RAG)
+Game-level optimizations:
+  - Suggests optimal in-game graphics settings (via RAG)
+  - Recommends resolution/render scale
+  - Configures ray tracing, DLSS/FSR, texture quality
+  - Tailors all settings to user's selected persona
 
 During gaming
 
@@ -150,23 +157,34 @@ Lightweight maintenance
 Competition is fragmented (no AI-first system assistant exists today)
 
 6. Core Features (MVP)
-A. Pre-Session Optimization
+A. User Persona Selection
 
-Toggle Windows power mode to “High Performance”
+User chooses their priority on first launch or per-game:
+  - Max FPS: Prioritizes frame rate over visuals
+  - Balanced: Optimized mix of performance and quality
+  - Quiet/Cool: Minimizes thermals and fan noise
+  - Visual Quality: Maximum graphics fidelity
 
-Close CPU/RAM-heavy apps
+B. Pre-Session Optimization
 
-Clear temp files
+PC-Level Adjustments:
+  - Toggle Windows power mode (High/Balanced based on persona)
+  - Close CPU/RAM-heavy apps
+  - Clear temp files
+  - Set GPU performance mode (max/balanced/quiet based on persona)
+  - Disable unnecessary startup background apps
+  - Check for outdated drivers
+  - Adjust screen color mode/perf mode
 
-Set GPU to max performance mode
+Game-Level Recommendations:
+  - Suggest graphics preset (Low/Medium/High/Ultra)
+  - Recommend resolution and render scale
+  - Configure ray tracing settings
+  - Set DLSS/FSR/XeSS upscaling
+  - Adjust shadow quality, texture quality, view distance
+  - All tailored to user's selected persona and hardware
 
-Disable unnecessary startup background apps
-
-Check for outdated drivers
-
-Adjust screen color mode/perf mode
-
-B. Real-Time System Monitoring
+C. Real-Time System Monitoring
 
 CPU/GPU temps
 
@@ -180,7 +198,7 @@ Percent thermal throttle
 
 GPU/CPU utilization graphs
 
-C. Smart Alerts
+D. Smart Alerts
 
 “Chrome is using 1.5 GB RAM—close it?”
 
@@ -188,13 +206,13 @@ C. Smart Alerts
 
 “VRAM maxed out—lower textures to High.”
 
-D. Game-Specific RAG Knowledge
+E. Game-Specific RAG Knowledge
 
 RAG corpus includes:
 
 Pro settings guides
 
-Best graphic settings for each title
+Best graphic settings for each title (per persona type)
 
 Known issues
 
@@ -204,7 +222,9 @@ Optimal GPU/NVIDIA control panel settings
 
 FPS/performance trade-offs
 
-E. Post-Session Insights
+Hardware-specific recommendations (e.g., "RTX 3060 Ti users: use High textures, DLSS Quality")
+
+F. Post-Session Insights
 
 Stability score
 
@@ -212,24 +232,31 @@ Bottleneck analysis
 
 Thermal trends
 
-Recommendations for next session
+Recommendations for next session (PC and game settings)
+
+Persona adjustment suggestions (e.g., "You could switch to 'Balanced' for better visuals without losing much FPS")
 
 Hardware upgrade suggestions
 
 7. Architecture Overview
-A. Frontend Options
+A. Distribution Strategy
 
-Electron
+Standalone executable (.exe) for Windows
+Users download and install—no Python, Node.js, or dependencies needed
+Bundled using Electron + PyInstaller or Tauri
+Auto-update capability for seamless version updates
 
-Tauri
+B. Frontend Options
 
-Qt
+Electron (recommended for easy distribution)
+
+Tauri (lighter alternative)
 
 Simple local web UI (React + local server)
 
-B. Backend Core
+C. Backend Core
 
-Python
+Python (bundled into executable)
 
 MCP Tools (system agents)
 
@@ -244,15 +271,19 @@ System Telemetry Collectors (Python libraries)
 
 Session Prep Agent
 Optimizes system pre-game using MCP tools.
+Applies persona-based PC and game settings.
 
 Monitoring Agent
 Watches telemetry and triggers alerts.
+Adjusts settings dynamically based on persona and performance.
 
 Game Guide Agent
 Uses RAG to provide per-title recommendations.
+Tailors suggestions to user's selected persona and detected hardware.
 
 Insight Agent
 Generates post-session summaries.
+Suggests persona adjustments based on actual performance data.
 
 Great for showing orchestration and multi-agent design.
 
@@ -282,7 +313,7 @@ You want contextual, grounded answers
 
 MCP tools act as bridges between AI and your device.
 
-MCP tools you’ll create:
+MCP tools you'll create:
 
 get_system_info
 
@@ -299,6 +330,12 @@ set_refresh_rate
 clean_temp_files
 
 fetch_running_processes
+
+detect_game_process
+
+get_hardware_specs
+
+apply_fan_curve (persona-based)
 
 This teaches you real-world AI engineering:
 
