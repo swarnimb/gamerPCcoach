@@ -1,0 +1,690 @@
+AI Gaming Session Coach — Hugging Face Assets & Resources
+Technical Implementation Guide
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 1: HUGGING FACE MODELS FOR PROJECT
+═══════════════════════════════════════════════════════════════════════════════
+
+A. EMBEDDING MODELS (For RAG System)
+────────────────────────────────────────────────────────────────────────────────
+
+1. sentence-transformers/all-MiniLM-L6-v2
+   License: Apache 2.0 ✅ Commercial Use OK
+   Size: 22MB (lightweight)
+   Use Case: Convert game optimization guides to vector embeddings
+   Performance: 384-dimension embeddings, fast inference
+   Integration: Works with ChromaDB, LanceDB, FAISS
+
+   Why chosen:
+   • Small enough to bundle in .exe
+   • Excellent balance of speed vs accuracy
+   • Most popular embedding model (proven reliability)
+   • Perfect for semantic search in game guides
+
+2. sentence-transformers/all-mpnet-base-v2 (Alternative)
+   License: Apache 2.0 ✅
+   Size: 420MB (larger, more accurate)
+   Use Case: Higher quality embeddings if size isn't critical
+   When to use: Pro version or cloud-hosted RAG
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. TEXT GENERATION MODELS (For Alerts & Insights)
+────────────────────────────────────────────────────────────────────────────────
+
+3. microsoft/phi-2
+   License: MIT ✅ Commercial Use OK
+   Size: 2.7GB
+   Parameters: 2.7B
+   Use Case: Generate natural language alerts and post-session insights
+   Performance: High quality for size, runs on CPU
+
+   Example outputs:
+   • "Your GPU reached 87°C. I increased fan speed to 75% to prevent thermal throttling."
+   • "Chrome was using 1.5GB RAM during your session. Close it before gaming for +5-8 FPS."
+
+   Why chosen:
+   • Extremely capable for its size
+   • Microsoft-backed (reliable)
+   • Can run on mid-range hardware
+
+4. TinyLlama/TinyLlama-1.1B-Chat-v1.0
+   License: Apache 2.0 ✅
+   Size: 1.1GB
+   Parameters: 1.1B
+   Use Case: Lightweight alternative for basic text generation
+   Performance: Faster than Phi-2, slightly lower quality
+
+   When to use: Free tier, minimum system requirements version
+
+5. google/flan-t5-base
+   License: Apache 2.0 ✅
+   Size: 850MB
+   Parameters: 250M
+   Use Case: Task-specific text generation (Q&A, explanations)
+   Performance: Excellent for structured outputs
+
+   Example usage:
+   • Input: "Explain bottleneck: GPU 45% CPU 98%"
+   • Output: "Your CPU is the bottleneck. Your GPU is waiting for the CPU to send instructions."
+
+────────────────────────────────────────────────────────────────────────────────
+
+C. CLASSIFICATION MODELS (For System Analysis)
+────────────────────────────────────────────────────────────────────────────────
+
+6. distilbert-base-uncased (Fine-tuned version)
+   License: Apache 2.0 ✅
+   Size: 250MB
+   Use Case: Classify bottleneck types, hardware compatibility
+
+   Classification tasks:
+   • Bottleneck type: CPU / GPU / RAM / VRAM / Thermal / Storage
+   • Game genre: FPS / RPG / Strategy / Racing / Simulation
+   • Issue severity: Critical / Warning / Info
+
+   Why chosen:
+   • Lightweight (distilled from BERT)
+   • Fast inference
+   • Easy to fine-tune with your own data
+
+7. facebook/bart-large-mnli (Zero-shot Classification)
+   License: Apache 2.0 ✅
+   Size: 1.6GB
+   Use Case: Classify without training data
+
+   Example:
+   • Input: "FPS drops from 144 to 60 when looking at smoke effects"
+   • Labels: ["GPU bottleneck", "CPU bottleneck", "RAM issue", "Graphics setting"]
+   • Output: "GPU bottleneck" (highest probability)
+
+────────────────────────────────────────────────────────────────────────────────
+
+D. SUMMARIZATION MODELS (For Post-Session Reports)
+────────────────────────────────────────────────────────────────────────────────
+
+8. facebook/bart-large-cnn
+   License: Apache 2.0 ✅
+   Size: 1.6GB
+   Use Case: Summarize session telemetry into concise insights
+
+   Example:
+   • Input: 2-hour session with 12,000 data points
+   • Output: "Session stability: 94%. Average GPU temp: 72°C (safe). 3 thermal spikes detected when loading new areas. Recommendation: Increase case fan speed by 10%."
+
+9. google/pegasus-xsum (Alternative)
+   License: Apache 2.0 ✅
+   Size: 570MB
+   Use Case: More abstractive summaries
+   Performance: Shorter, punchier summaries
+
+────────────────────────────────────────────────────────────────────────────────
+
+E. SENTIMENT ANALYSIS (For Community Feedback)
+────────────────────────────────────────────────────────────────────────────────
+
+10. cardiffnlp/twitter-roberta-base-sentiment-latest
+    License: MIT ✅
+    Size: 500MB
+    Use Case: Analyze Discord/Reddit feedback sentiment
+
+    Application:
+    • Beta tester feedback analysis
+    • Feature request prioritization
+    • Community health monitoring
+
+    Labels: Positive / Neutral / Negative
+
+────────────────────────────────────────────────────────────────────────────────
+
+F. SPECIALIZED MODELS (Advanced Features)
+────────────────────────────────────────────────────────────────────────────────
+
+11. mistralai/Mistral-7B-Instruct-v0.2
+    License: Apache 2.0 ✅
+    Size: 14GB
+    Parameters: 7B
+    Use Case: Advanced conversational AI (Pro tier feature)
+
+    Use via:
+    • Hugging Face Inference API (cloud)
+    • Local deployment for power users
+
+    Features:
+    • Conversational troubleshooting
+    • Complex multi-step optimization reasoning
+    • Natural dialogue with users
+
+12. Salesforce/blip-image-captioning-base
+    License: BSD-3-Clause ✅
+    Size: 990MB
+    Use Case: Analyze screenshots of in-game settings
+
+    Future feature:
+    • User uploads screenshot of graphics menu
+    • Model reads settings automatically
+    • AI suggests optimizations
+
+═══════════════════════════════════════════════════════════════════════════════
+SECTION 2: VECTOR DATABASES & TOOLS
+═══════════════════════════════════════════════════════════════════════════════
+
+A. VECTOR DATABASES FOR RAG
+────────────────────────────────────────────────────────────────────────────────
+
+1. ChromaDB
+   License: Apache 2.0 ✅
+   Best for: Quick prototyping, local-first apps
+   Pros:
+   • Simple Python API
+   • Embedded mode (no server needed)
+   • Perfect for bundled .exe
+   • Built-in persistence
+
+   Use case: Store game optimization guides as vectors
+
+   Installation: pip install chromadb
+
+2. LanceDB
+   License: Apache 2.0 ✅
+   Best for: Performance-critical applications
+   Pros:
+   • Faster than ChromaDB
+   • Better for large datasets
+   • Efficient disk usage
+
+   Installation: pip install lancedb
+
+3. FAISS (Facebook AI Similarity Search)
+   License: MIT ✅
+   Best for: Maximum performance, large scale
+   Pros:
+   • Blazing fast
+   • Industry standard
+   • Highly optimized
+   Cons:
+   • Lower-level API (more complex)
+
+   Installation: pip install faiss-cpu
+
+RECOMMENDATION: Start with ChromaDB (easiest), migrate to LanceDB if performance needed.
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. HUGGING FACE LIBRARIES
+────────────────────────────────────────────────────────────────────────────────
+
+1. transformers
+   Installation: pip install transformers
+   Purpose: Load and run all HF models
+
+   Key classes:
+   • pipeline() - Simple high-level API
+   • AutoModel - Load any model dynamically
+   • AutoTokenizer - Handle text preprocessing
+
+2. sentence-transformers
+   Installation: pip install sentence-transformers
+   Purpose: Specialized library for embeddings
+
+   Usage:
+   from sentence_transformers import SentenceTransformer
+   model = SentenceTransformer('all-MiniLM-L6-v2')
+   embeddings = model.encode(['optimize FPS', 'reduce temperature'])
+
+3. datasets
+   Installation: pip install datasets
+   Purpose: Access curated datasets for training/fine-tuning
+
+   Use case: Download gaming forums text for fine-tuning models
+
+4. accelerate
+   Installation: pip install accelerate
+   Purpose: Optimize model inference speed
+
+   Benefits:
+   • Automatic GPU/CPU optimization
+   • Mixed precision (faster inference)
+   • Multi-GPU support (future scaling)
+
+5. bitsandbytes (Optional)
+   Installation: pip install bitsandbytes
+   Purpose: Model quantization (reduce size/memory)
+
+   Use case: Run 7B models on 8GB GPU via 4-bit quantization
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 3: DATASETS FOR RAG CORPUS
+════════════════════════════════════════════════════════════════════════════════
+
+A. EXISTING DATASETS (Hugging Face)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Community Datasets to Explore:
+
+   Search on HF: https://huggingface.co/datasets
+
+   Keywords:
+   • "gaming"
+   • "technical support"
+   • "PC troubleshooting"
+   • "hardware optimization"
+
+   Note: Most gaming-specific datasets are limited. You'll likely need to curate your own.
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. SOURCES TO BUILD CUSTOM RAG CORPUS
+────────────────────────────────────────────────────────────────────────────────
+
+1. Reddit Data:
+   • r/pcgaming optimization guides
+   • r/buildapc troubleshooting threads
+   • r/nvidia, r/AMD driver discussions
+
+   Collection method:
+   • Reddit API (PRAW library)
+   • Filter by upvotes (quality signal)
+   • Extract highly-upvoted comments
+
+2. YouTube Transcripts:
+   • Linus Tech Tips optimization videos
+   • JayzTwoCents thermal guides
+   • Optimum Tech settings guides
+
+   Tool: youtube-transcript-api
+
+3. Game-Specific Wikis:
+   • PCGamingWiki (https://www.pcgamingwiki.com)
+   • Game-specific optimization pages
+   • Known issues and fixes
+
+4. Official Documentation:
+   • NVIDIA Control Panel guide
+   • AMD Radeon Software guide
+   • Windows power management docs
+   • DirectX/Vulkan best practices
+
+5. Hardware Review Sites:
+   • Tom's Hardware optimization articles
+   • TechPowerUp guides
+   • AnandTech deep dives
+
+6. Steam Community Guides:
+   • Per-game optimization guides
+   • User-contributed settings
+   • Hardware compatibility reports
+
+────────────────────────────────────────────────────────────────────────────────
+
+C. STRUCTURE FOR RAG DOCUMENTS
+────────────────────────────────────────────────────────────────────────────────
+
+Recommended format for each game/topic:
+
+{
+  "game_title": "Cyberpunk 2077",
+  "category": "graphics_settings",
+  "persona": "Max FPS",
+  "hardware": "RTX 3060 Ti",
+  "settings": {
+    "resolution": "1080p",
+    "quality_preset": "Medium",
+    "ray_tracing": "Off",
+    "dlss": "Quality",
+    "details": {
+      "textures": "High",
+      "shadows": "Medium",
+      "reflections": "Low"
+    }
+  },
+  "expected_fps": "90-120",
+  "rationale": "Shadows are GPU-heavy in CP2077. Medium provides good visuals at 50% less cost than Ultra.",
+  "source": "Reddit r/pcgaming + YouTube optimizations",
+  "date_updated": "2025-01-15"
+}
+
+This structured data will be converted to embeddings for semantic search.
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 4: INFERENCE OPTIONS
+════════════════════════════════════════════════════════════════════════════════
+
+A. LOCAL INFERENCE (Bundled in .exe)
+────────────────────────────────────────────────────────────────────────────────
+
+Pros:
+✅ No internet required
+✅ No API costs
+✅ Privacy (no data leaves user's PC)
+✅ Instant response times
+
+Cons:
+❌ Larger executable size (2-5GB)
+❌ Higher system requirements
+❌ Limited to smaller models
+
+Best for: Free tier, core features
+
+Models to bundle:
+• all-MiniLM-L6-v2 (embeddings): 22MB
+• TinyLlama or Flan-T5 (text gen): 850MB-1.1GB
+• Total: ~1-2GB added to .exe
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. HUGGING FACE INFERENCE API (Cloud)
+────────────────────────────────────────────────────────────────────────────────
+
+Pricing (as of 2025):
+• Free tier: Rate-limited (good for testing)
+• Pro tier: $9/month (higher limits)
+• Enterprise: Custom pricing
+
+Usage-based pricing:
+• ~$0.06 per 1K tokens (text generation)
+• ~$0.004 per 1K tokens (embeddings)
+
+Use case: Pro tier advanced features
+
+Example:
+import requests
+
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+
+def query(payload):
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()
+
+result = query({"inputs": "Explain GPU bottleneck in simple terms:"})
+
+────────────────────────────────────────────────────────────────────────────────
+
+C. HYBRID APPROACH (Recommended)
+────────────────────────────────────────────────────────────────────────────────
+
+Free Tier:
+• Local embeddings (all-MiniLM-L6-v2)
+• Local small LLM (TinyLlama)
+• Offline-first functionality
+
+Pro Tier ($4.99/month):
+• HF Inference API for advanced features
+• Mistral-7B for complex reasoning
+• Cloud RAG sync
+• Better summarization
+
+Benefits:
+• Low barrier to entry (free works fully offline)
+• Upsell path to better AI features
+• Manageable API costs (only Pro users)
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 5: PACKAGING & DISTRIBUTION
+════════════════════════════════════════════════════════════════════════════════
+
+A. MODEL OPTIMIZATION FOR BUNDLING
+────────────────────────────────────────────────────────────────────────────────
+
+1. Quantization (Reduce Model Size)
+
+   Tool: optimum library
+   Installation: pip install optimum[onnxruntime]
+
+   Process:
+   • Convert model to ONNX format
+   • Apply INT8 quantization
+   • 4x smaller, minimal accuracy loss
+
+   Example:
+   all-MiniLM-L6-v2: 22MB → 5.5MB (quantized)
+   TinyLlama: 1.1GB → 275MB (quantized)
+
+2. Model Pruning
+
+   Remove unnecessary weights
+   Further size reduction
+   Requires testing to maintain quality
+
+3. GGUF Format (for LLMs)
+
+   Used by llama.cpp
+   Highly optimized inference
+   CPU-friendly
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. PACKAGING TOOLS
+────────────────────────────────────────────────────────────────────────────────
+
+1. PyInstaller
+   Purpose: Bundle Python + models into .exe
+
+   Command:
+   pyinstaller --onefile --add-data "models/*:models" main.py
+
+   Pros: Mature, well-documented
+   Cons: Large file size
+
+2. Electron (Frontend + Python backend)
+   Purpose: Cross-platform desktop app
+
+   Structure:
+   • Electron frontend (React/Vue)
+   • Python backend (local server)
+   • Models bundled in resources/
+
+   Pros: Professional UI, auto-update support
+   Cons: Larger bundle (~150MB base + models)
+
+3. Tauri (Lightweight Alternative)
+   Purpose: Rust-based Electron alternative
+
+   Pros: 10x smaller than Electron
+   Cons: Less mature ecosystem
+
+RECOMMENDATION: Electron for MVP (ease of development + professional look)
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 6: IMPLEMENTATION ROADMAP
+════════════════════════════════════════════════════════════════════════════════
+
+WEEK 1: RAG Setup
+────────────────────────────────────────────────────────────────────────────────
+□ Install ChromaDB + sentence-transformers
+□ Curate 10-20 game optimization guides
+□ Convert guides to embeddings
+□ Test semantic search ("best settings for RTX 3060")
+□ Verify retrieval quality
+
+Models needed:
+• sentence-transformers/all-MiniLM-L6-v2
+
+────────────────────────────────────────────────────────────────────────────────
+
+WEEK 2: Text Generation for Alerts
+────────────────────────────────────────────────────────────────────────────────
+□ Download TinyLlama or Flan-T5
+□ Create prompt templates for alerts
+□ Test local inference speed
+□ Implement alert generation pipeline
+□ A/B test different prompts
+
+Models needed:
+• TinyLlama/TinyLlama-1.1B-Chat-v1.0 OR google/flan-t5-base
+
+────────────────────────────────────────────────────────────────────────────────
+
+WEEK 3: Post-Session Insights
+────────────────────────────────────────────────────────────────────────────────
+□ Implement summarization pipeline
+□ Create insight templates
+□ Test with real telemetry data
+□ Format outputs for UI
+
+Models needed:
+• facebook/bart-large-cnn OR google/pegasus-xsum
+
+────────────────────────────────────────────────────────────────────────────────
+
+WEEK 4: Classification & Analysis
+────────────────────────────────────────────────────────────────────────────────
+□ Fine-tune DistilBERT on bottleneck types
+□ Create training dataset (100-200 examples)
+□ Test classification accuracy
+□ Integrate into monitoring agent
+
+Models needed:
+• distilbert-base-uncased (fine-tuned)
+
+────────────────────────────────────────────────────────────────────────────────
+
+WEEK 5: Packaging & Optimization
+────────────────────────────────────────────────────────────────────────────────
+□ Quantize models (reduce size)
+□ Bundle models with Electron
+□ Test .exe on fresh Windows install
+□ Measure load times and memory usage
+□ Optimize as needed
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 7: COST ANALYSIS
+════════════════════════════════════════════════════════════════════════════════
+
+A. DEVELOPMENT COSTS (One-time)
+────────────────────────────────────────────────────────────────────────────────
+
+Hugging Face Pro (optional): $9/month during development
+Total: $0-50 (can use free tier for dev)
+
+────────────────────────────────────────────────────────────────────────────────
+
+B. OPERATIONAL COSTS (Ongoing)
+────────────────────────────────────────────────────────────────────────────────
+
+Free Tier Users (100% local):
+• Cost per user: $0
+• Inference: On their hardware
+• No cloud costs
+
+Pro Tier Users (HF Inference API):
+• Assume 1000 API calls/month per user
+• ~50K tokens total
+• Cost: ~$3/month per active Pro user
+• Revenue: $4.99/month
+• Margin: ~$2/month per user
+
+At 100 Pro users: $200/month profit
+At 1000 Pro users: $2000/month profit
+
+────────────────────────────────────────────────────────────────────────────────
+
+C. SCALING STRATEGY
+────────────────────────────────────────────────────────────────────────────────
+
+0-1000 users: HF Inference API (simple, no infrastructure)
+1000-10K users: Consider self-hosted models (AWS/GCP)
+10K+ users: Custom ML infrastructure or HF Inference Endpoints
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 8: LICENSE COMPLIANCE CHECKLIST
+════════════════════════════════════════════════════════════════════════════════
+
+All Selected Models - Commercial Use Approved ✅
+────────────────────────────────────────────────────────────────────────────────
+
+✅ all-MiniLM-L6-v2 - Apache 2.0
+✅ microsoft/phi-2 - MIT
+✅ TinyLlama - Apache 2.0
+✅ flan-t5-base - Apache 2.0
+✅ distilbert-base-uncased - Apache 2.0
+✅ bart-large-cnn - Apache 2.0
+✅ mistralai/Mistral-7B-Instruct - Apache 2.0
+✅ twitter-roberta-sentiment - MIT
+
+Required Attribution:
+• Include model licenses in LICENSES.txt file
+• Credit Hugging Face in About section
+• Link to model cards (optional but good practice)
+
+Example attribution text:
+"This software uses AI models from Hugging Face. Model licenses available at [link]."
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 9: TROUBLESHOOTING & OPTIMIZATION
+════════════════════════════════════════════════════════════════════════════════
+
+Common Issues & Solutions:
+────────────────────────────────────────────────────────────────────────────────
+
+Issue: Model download fails
+Solution: Pre-download models during build, bundle in .exe
+
+Issue: Slow inference on CPU
+Solution: Use quantized models, consider ONNX runtime
+
+Issue: High memory usage
+Solution: Load models on-demand, unload after use
+
+Issue: Large .exe size (5GB+)
+Solution:
+• Quantize models
+• Use smaller alternatives (TinyLlama vs Mistral)
+• Offer "lite" version with fewer models
+
+Issue: Cold start (first run slow)
+Solution: Cache models locally, warm-up during app startup
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 10: ADDITIONAL RESOURCES
+════════════════════════════════════════════════════════════════════════════════
+
+Documentation:
+────────────────────────────────────────────────────────────────────────────────
+• Hugging Face Docs: https://huggingface.co/docs
+• Transformers Library: https://huggingface.co/docs/transformers
+• Sentence Transformers: https://www.sbert.net/
+• ChromaDB: https://docs.trychroma.com/
+
+Communities:
+────────────────────────────────────────────────────────────────────────────────
+• HF Discord: https://hf.co/join/discord
+• r/LocalLLaMA (local model optimization)
+• r/MachineLearning
+
+Tutorials:
+────────────────────────────────────────────────────────────────────────────────
+• RAG from Scratch: HF course
+• Fine-tuning guides: HF docs
+• Model quantization: optimum documentation
+
+Tools:
+────────────────────────────────────────────────────────────────────────────────
+• Model size calculator: https://huggingface.co/spaces/hf-accelerate/model-memory-usage
+• License checker: https://huggingface.co/models (filter by license)
+• Inference speed benchmark: Local testing required
+
+════════════════════════════════════════════════════════════════════════════════
+QUICK START CHECKLIST
+════════════════════════════════════════════════════════════════════════════════
+
+Week 1 Immediate Actions:
+────────────────────────────────────────────────────────────────────────────────
+□ Create Hugging Face account (free)
+□ Install: pip install transformers sentence-transformers chromadb
+□ Download all-MiniLM-L6-v2 (test embedding)
+□ Download TinyLlama (test text generation)
+□ Create sample RAG database with 5 game guides
+□ Test end-to-end: Query → Retrieval → Generation
+□ Measure performance (speed, memory, quality)
+
+════════════════════════════════════════════════════════════════════════════════
+
+This document provides everything needed to integrate Hugging Face into
+GamerPCCoach effectively, cost-efficiently, and legally.
+
+Focus on local-first architecture for free tier, with optional cloud features
+for Pro tier. This maximizes value while keeping costs predictable.
+
+Good luck building! 🚀
